@@ -16,6 +16,7 @@ namespace LironSaediGalaga
     /// </summary>
     public class Game1 : Microsoft.Xna.Framework.Game
     {
+        // Test change
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Texture2D arwingTexture;
