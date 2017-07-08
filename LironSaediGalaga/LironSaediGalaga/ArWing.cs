@@ -17,7 +17,7 @@ namespace LironSaediGalaga
         SoundEffect laserSound;
         float bulletSpeed = 5;
         KeyboardState lastKeyboardState;
-       public bool stop = false;
+        public bool stop = false;
         //get for bullets
         //public objectType Bullets
         public List<Bullet> Bullets
@@ -38,19 +38,27 @@ namespace LironSaediGalaga
             //Shoot();
         }
 
-        public void Update(KeyboardState ks)
+        public void Update(KeyboardState ks, Viewport viewport)
         {
             if (ks.IsKeyDown(Keys.Right))
             {
-                position.X += speed.X;
+                if (viewport.Width > Position.X + Hitbox.Width)
+                {
+                    position.X += speed.X;
+                }
+
             }
             if (ks.IsKeyDown(Keys.Left))
             {
-                position.X -= speed.X;
+                if (position.X > 0)
+                {
+                    position.X -= speed.X;
+                }
+
             }
-            if (ks.IsKeyDown(Keys.Space) && !lastKeyboardState.IsKeyDown(Keys.Space) && stop == false )
+            if (ks.IsKeyDown(Keys.Space) && !lastKeyboardState.IsKeyDown(Keys.Space) && stop == false)
             {
-      
+
                 laserSound.Play();
                 Shoot();
 

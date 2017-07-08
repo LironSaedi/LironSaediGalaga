@@ -21,7 +21,7 @@ namespace LironSaediGalaga
         float bulletSpeed;
         float timer = 0;
         int minShotDelay = 1;
-        int maxShotDelay = 6;
+        int maxShotDelay = 3;
 
 
         Random random;
@@ -121,7 +121,7 @@ namespace LironSaediGalaga
             foreach (Bullet bullet in bullets)
             {
                 bullet.Draw(batch, debug);
-             }
+            }
 
         }
     }

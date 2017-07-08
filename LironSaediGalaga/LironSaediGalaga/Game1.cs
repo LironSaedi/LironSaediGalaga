@@ -162,11 +162,11 @@ namespace LironSaediGalaga
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-
+             
             ks = Keyboard.GetState();
             // TODO: Add your update logic here
 
-            arwing.Update(ks);
+            arwing.Update(ks,GraphicsDevice.Viewport);
 
             for (int i = 0; i < arwing.Bullets.Count; i++)
             {
