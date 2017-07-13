@@ -32,7 +32,7 @@ namespace LironSaediGalaga
         SpriteFont scoreFont;
         SpriteFont backFont;
         int score = 0;
-        int lives = 1;
+        int lives = 1000;
         Random rnd = new Random();
         int level = 1;
         int rows = 0; //5 max
@@ -268,6 +268,11 @@ namespace LironSaediGalaga
         {
             ks = Keyboard.GetState();
 
+            if (ks.IsKeyDown(Keys.B))
+            {
+
+                lives += 1;
+            }
             if (!gameOver)
             {
                 this.updateGamePlaying(gameTime);
