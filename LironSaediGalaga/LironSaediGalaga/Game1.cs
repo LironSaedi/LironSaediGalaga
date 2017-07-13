@@ -21,21 +21,24 @@ namespace LironSaediGalaga
         SpriteBatch spriteBatch;
         Texture2D arwingTexture;
         Texture2D background;
+        Texture2D GameOver;
         public static Texture2D hitboxSprite;
         ArWing arwing;
         List<Enemies> enemies;
         Sprite space;
+        Sprite GameOverD;
         KeyboardState ks;
         Texture2D[] enemyImages;
         SpriteFont scoreFont;
         SpriteFont backFont;
         int score = 0;
-        int lives = 5;
+        int lives = 1;
         Random rnd = new Random();
         int level = 1;
         int rows = 0; //5 max
         int cols = 0; //15 max
         bool debugMode = false;
+        bool gameOver = false;
 
         TimeSpan delay = TimeSpan.Zero;
 
@@ -98,7 +101,8 @@ namespace LironSaediGalaga
             SoundEffect laserSound = Content.Load<SoundEffect>("laser1");
             arwing = new ArWing(arwingTexture, laser, new Vector2(100, 825), Color.White, new Vector2(5), laserSound);
             background = Content.Load<Texture2D>("SpaceBackground");
-
+            GameOver = Content.Load<Texture2D>("GameOver");
+            GameOverD = new Sprite(GameOver, Vector2.Zero, Color.White);
             space = new Sprite(background, Vector2.Zero, Color.White);
             // TODO: use this.Content to load your game content here
         }
@@ -155,18 +159,36 @@ namespace LironSaediGalaga
             // TODO: Unload any non ContentManager content here
         }
 
-        /// <summary>
-        /// Allows the game to run logic such as updating the world,
-        /// checking for collisions, gathering input, and playing audio.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Update(GameTime gameTime)
+        private void updateGameOver(GameTime gameTime)
         {
-             
-            ks = Keyboard.GetState();
+
+            if (ks.IsKeyDown(Keys.R))
+            {
+                enemies = new List<Enemies>();
+                lives = 2;
+                level = 1;
+                rows = 0;
+                cols = 0;
+                score = 0;
+                Spawn();
+                Texture2D laser = Content.Load<Texture2D>("Laser");
+                SoundEffect laserSound = Content.Load<SoundEffect>("laser1");
+                arwing = new ArWing(arwingTexture, laser, new Vector2(100, 825), Color.White, new Vector2(5), laserSound);
+
+                gameOver = false;
+            }
+
+            else if (ks.IsKeyDown(Keys.Q))
+            {
+                Exit();
+            }
+        }
+
+        private void updateGamePlaying(GameTime gameTime)
+        {
             // TODO: Add your update logic here
 
-            arwing.Update(ks,GraphicsDevice.Viewport);
+            arwing.Update(ks, GraphicsDevice.Viewport);
 
             for (int i = 0; i < arwing.Bullets.Count; i++)
             {
@@ -213,7 +235,7 @@ namespace LironSaediGalaga
                         enemies[i].Bullets.Remove(enemies[i].Bullets[k]);
                         if (lives == 0)
                         {
-                            Exit();
+                            gameOver = true;
                         }
 
                     }
@@ -235,24 +257,39 @@ namespace LironSaediGalaga
                     Spawn();
                 }
             }
+        }
+
+        /// <summary>
+        /// Allows the game to run logic such as updating the world,
+        /// checking for collisions, gathering input, and playing audio.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        protected override void Update(GameTime gameTime)
+        {
+            ks = Keyboard.GetState();
+
+            if (!gameOver)
+            {
+                this.updateGamePlaying(gameTime);
+            }
+            else
+            {
+                this.updateGameOver(gameTime);
+            }
 
             base.Update(gameTime);
         }
 
-        /// <summary>
-        /// This is called when the game should draw itself.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Draw(GameTime gameTime)
+        private void drawGameOver(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GameOverD.Draw(spriteBatch, false);
 
-            // TODO: Add your drawing code here
-            spriteBatch.Begin();
-            space.Draw(spriteBatch, false);
-
+            spriteBatch.DrawString(scoreFont, "To Restart Press R To Quit Press Q", new Vector2(1300, 550), Color.ForestGreen);
+        }
 
 
+        private void drawGamePlay(GameTime gameTime)
+        {
             //for loop to draw them all
             for (int j = 0; j < enemies.Count; j++)
             {
@@ -261,11 +298,32 @@ namespace LironSaediGalaga
 
             arwing.Draw(spriteBatch, debugMode);
 
-
             spriteBatch.DrawString(scoreFont, "Score: " + score, new Vector2(10, 20), Color.ForestGreen);
             spriteBatch.DrawString(backFont, "Lives:" + lives, new Vector2(1650, 10), Color.White);
             spriteBatch.DrawString(scoreFont, "Lives:" + lives, new Vector2(1650, 10), Color.ForestGreen);
             spriteBatch.DrawString(scoreFont, "Level:" + level, new Vector2(1000, 10), Color.ForestGreen);
+        }
+        /// <summary>
+        /// This is called when the game should draw itself.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        /// 
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+
+            // TODO: Add your drawing code here
+            spriteBatch.Begin();
+            space.Draw(spriteBatch, false);
+
+            if (!gameOver)
+            {
+                this.drawGamePlay(gameTime);
+            }
+            else
+            {
+                this.drawGameOver(gameTime);
+            }
 
             spriteBatch.End();
             base.Draw(gameTime);

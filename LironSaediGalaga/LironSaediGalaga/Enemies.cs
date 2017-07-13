@@ -14,7 +14,6 @@ namespace LironSaediGalaga
         int score;
         List<Bullet> bullets;
         Texture2D enemyBulletTexture;
-        Texture2D hitboxTexture;
         float scale;
         float scaleRate;
         Vector2 origin;
@@ -22,7 +21,6 @@ namespace LironSaediGalaga
         float timer = 0;
         int minShotDelay = 1;
         int maxShotDelay = 3;
-
 
         Random random;
         float shotDelay;
