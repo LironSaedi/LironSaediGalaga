@@ -34,10 +34,11 @@ namespace LironSaediGalaga
         KeyboardState ks;
         Texture2D[] enemyImages;
         SpriteFont scoreFont;
-      
+
         int score = 0;
         int lives = 1;
-        int savedScore;
+        List<int> highscores = new List<int>();
+        bool saveScores = true;
         Random rnd = new Random();
         int level = 1;
         int rows = 0; //5 max
@@ -102,7 +103,7 @@ namespace LironSaediGalaga
             Texture2D laser = Content.Load<Texture2D>("Laser");
 
             scoreFont = Content.Load<SpriteFont>("Scorefont");
-            
+
             SoundEffect laserSound = Content.Load<SoundEffect>("laser1");
             arwing = new ArWing(arwingTexture, laser, new Vector2(100, 825), Color.White, new Vector2(5), laserSound);
             background = Content.Load<Texture2D>("SpaceBackground");
@@ -111,8 +112,8 @@ namespace LironSaediGalaga
             KeyBoard = Content.Load<Texture2D>("keyboard-aplhabet");
             GameOverD = new Sprite(GameOver, Vector2.Zero, Color.White);
             space = new Sprite(background, Vector2.Zero, Color.White);
-            scoreBoard = new Sprite(ScoreBoard, new Vector2(1300,30), Color.White);
-            keyBoard = new Sprite(KeyBoard, new Vector2(1700,600),Color.White);
+            scoreBoard = new Sprite(ScoreBoard, new Vector2(1300, 30), Color.White);
+            keyBoard = new Sprite(KeyBoard, new Vector2(1700, 600), Color.White);
             // TODO: use this.Content to load your game content here
         }
 
@@ -170,11 +171,25 @@ namespace LironSaediGalaga
 
         private void updateGameOver(GameTime gameTime)
         {
-            savedScore = score;
+            if (saveScores == true)
+            {
+                saveScores = false;
+
+                //save score into the list of highscores
+                highscores.Add(score);
+                //highscores.Insert(0, score);//hint not zero unless its the high score
+
+                //loop thorugh highscores
+                //compare score with highscores[i]
+                //if score > highscores[i]
+                //highscores.Insert(i, score)
+
+
+            }
 
             if (ks.IsKeyDown(Keys.R))
             {
-                
+
                 enemies = new List<Enemies>();
                 lives = 2;
                 level = 1;
@@ -198,6 +213,7 @@ namespace LironSaediGalaga
         private void updateGamePlaying(GameTime gameTime)
         {
             // TODO: Add your update logic here
+            saveScores = true;
 
             arwing.Update(ks, GraphicsDevice.Viewport);
 
@@ -284,6 +300,11 @@ namespace LironSaediGalaga
 
                 lives += 1;
             }
+            if (ks.IsKeyDown(Keys.F8))
+            {
+                lives -= 1;
+            }
+
             if (!gameOver)
             {
                 this.updateGamePlaying(gameTime);
@@ -292,7 +313,7 @@ namespace LironSaediGalaga
             {
                 this.updateGameOver(gameTime);
             }
-           
+
             base.Update(gameTime);
         }
 
@@ -303,6 +324,31 @@ namespace LironSaediGalaga
             scoreBoard.Draw(spriteBatch, false);
             spriteBatch.DrawString(scoreFont, "To Restart Press R To Quit Press Q", new Vector2(1000, 550), Color.Yellow);
             keyBoard.Draw(spriteBatch, false);
+
+            // sort high scores
+            // for loop though all items (twice)
+            // if (item[i] < item[j])
+            // swap i and j
+
+
+            int x = 3;
+            int y = 5;
+
+            // save x before we overrite it
+            int temp = x;
+            x = y;
+            y = temp;
+            for (int i = 0; i <highscores.)
+
+            for (int i = 0 ; i < highscores.Count && i < 6; i++)
+            {
+
+                spriteBatch.DrawString(scoreFont, highscores[i].ToString(), new Vector2(1440, 140 + dy), Color.White);
+
+
+                dy += 30;
+
+            }
         }
 
 
@@ -317,9 +363,13 @@ namespace LironSaediGalaga
             arwing.Draw(spriteBatch, debugMode);
 
             spriteBatch.DrawString(scoreFont, "Score: " + score, new Vector2(10, 20), Color.ForestGreen);
-           
             spriteBatch.DrawString(scoreFont, "Lives:" + lives, new Vector2(1500, 10), Color.ForestGreen);
             spriteBatch.DrawString(scoreFont, "Level:" + level, new Vector2(1000, 10), Color.ForestGreen);
+            if (ks.IsKeyDown(Keys.G))
+            {
+                score += 1;
+            }
+
         }
         /// <summary>
         /// This is called when the game should draw itself.
