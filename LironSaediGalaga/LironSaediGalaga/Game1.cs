@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using System.Xml.Linq;
 
 namespace LironSaediGalaga
 {
@@ -47,6 +48,7 @@ namespace LironSaediGalaga
         bool gameOver = false;
 
         TimeSpan delay = TimeSpan.Zero;
+        XDocument document;
 
 
         public Game1()
@@ -115,6 +117,12 @@ namespace LironSaediGalaga
             scoreBoard = new Sprite(ScoreBoard, new Vector2(1300, 30), Color.White);
             keyBoard = new Sprite(KeyBoard, new Vector2(1700, 600), Color.White);
             // TODO: use this.Content to load your game content here
+
+            document = XDocument.Load("HighScores.xml");
+            foreach (XElement score in document.Elements("Scores").Elements("Score"))
+            {
+                highscores.Add(int.Parse(score.Value));
+            }
         }
 
         private void Spawn()
@@ -183,6 +191,40 @@ namespace LironSaediGalaga
                 //compare score with highscores[i]
                 //if score > highscores[i]
                 //highscores.Insert(i, score)
+                for (int i = 0; i < highscores.Count; i++)
+                {
+                    for (int j = 0; j < highscores.Count; j++)
+                    {
+                        if (highscores[i] > highscores[j])
+                        {
+                            int temp = highscores[i];
+                            highscores[i] = highscores[j];
+                            highscores[j] = temp;
+                        }
+
+                    }
+
+                }
+
+                document.Element("Scores").RemoveAll();
+
+                for (int f = 0; f < 6; f++)
+                {
+                    if(f < highscores.Count)
+                    {
+                        XElement score = new XElement("Score");
+                        score.Value = highscores[f].ToString();
+                        document.Element("Scores").Add(score);
+                        document.Save("HighScores.xml");
+                    }
+                    else
+                    {
+                        XElement score = new XElement("Score");
+                        score.Value = "0";
+                        document.Element("Scores").Add(score);
+                        document.Save("HighScores.xml");
+                    }
+                }
 
 
             }
@@ -331,16 +373,18 @@ namespace LironSaediGalaga
             // swap i and j
 
 
-            int x = 3;
-            int y = 5;
+            //int x = 3;
+            //int y = 5;
 
             // save x before we overrite it
-            int temp = x;
-            x = y;
-            y = temp;
-            for (int i = 0; i <highscores.)
+            //int temp = x;
+            //x = y;
+            //y = temp;
 
-            for (int i = 0 ; i < highscores.Count && i < 6; i++)
+            int dy = 0;
+
+
+            for (int i = 0; i < highscores.Count && i < 6; i++)
             {
 
                 spriteBatch.DrawString(scoreFont, highscores[i].ToString(), new Vector2(1440, 140 + dy), Color.White);
