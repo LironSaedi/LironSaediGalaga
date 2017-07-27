@@ -35,6 +35,8 @@ namespace LironSaediGalaga
         KeyboardState ks;
         Texture2D[] enemyImages;
         SpriteFont scoreFont;
+        GameState gameState;
+        List<KeyPadKey> keyPadKeys;
 
         int score = 0;
         int lives = 1;
@@ -68,7 +70,7 @@ namespace LironSaediGalaga
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
+            IsMouseVisible = true;
             base.Initialize();
         }
 
@@ -115,7 +117,7 @@ namespace LironSaediGalaga
             GameOverD = new Sprite(GameOver, Vector2.Zero, Color.White);
             space = new Sprite(background, Vector2.Zero, Color.White);
             scoreBoard = new Sprite(ScoreBoard, new Vector2(1300, 30), Color.White);
-            keyBoard = new Sprite(KeyBoard, new Vector2(1700, 600), Color.White);
+            keyBoard = new Sprite(KeyBoard, new Vector2(700, 200), Color.White);
             // TODO: use this.Content to load your game content here
 
             document = XDocument.Load("HighScores.xml");
@@ -123,6 +125,23 @@ namespace LironSaediGalaga
             {
                 highscores.Add(int.Parse(score.Value));
             }
+
+            keyPadKeys = new List<KeyPadKey>();
+
+            //LOOK ABOVE
+            //create a y position that starts at the top of the keypad
+            int yPos = 200;
+
+            for ( int i = 0; i < 26; i++)
+            {
+               
+                //add a new KeyPadKey to the list keyPadKeys
+                //the new KeyPadKey's new Rectangle's x position will be at the left most x + i % 7 * 77 
+                //the y position will be added by 77 every 7 rectangles
+                //the letter for each KeyPadKey will be a new char with a value of 65 + i                
+            }                        
+
+            gameState = GameState.Login;
         }
 
         private void Spawn()
@@ -243,7 +262,7 @@ namespace LironSaediGalaga
                 SoundEffect laserSound = Content.Load<SoundEffect>("laser1");
                 arwing = new ArWing(arwingTexture, laser, new Vector2(100, 825), Color.White, new Vector2(5), laserSound);
 
-                gameOver = false;
+                gameState = GameState.Game;
             }
 
             else if (ks.IsKeyDown(Keys.Q))
@@ -304,7 +323,7 @@ namespace LironSaediGalaga
                         enemies[i].Bullets.Remove(enemies[i].Bullets[k]);
                         if (lives == 0)
                         {
-                            gameOver = true;
+                            gameState = GameState.GameOver;
                         }
 
                     }
@@ -347,11 +366,11 @@ namespace LironSaediGalaga
                 lives -= 1;
             }
 
-            if (!gameOver)
+            if (gameState == GameState.Game)
             {
                 this.updateGamePlaying(gameTime);
             }
-            else
+            else if(gameState == GameState.GameOver)
             {
                 this.updateGameOver(gameTime);
             }
@@ -365,7 +384,7 @@ namespace LironSaediGalaga
             spriteBatch.DrawString(scoreFont, "Your Score: " + score, new Vector2(500, 100), Color.Yellow);
             scoreBoard.Draw(spriteBatch, false);
             spriteBatch.DrawString(scoreFont, "To Restart Press R To Quit Press Q", new Vector2(1000, 550), Color.Yellow);
-            keyBoard.Draw(spriteBatch, false);
+           
 
             // sort high scores
             // for loop though all items (twice)
@@ -428,13 +447,18 @@ namespace LironSaediGalaga
             spriteBatch.Begin();
             space.Draw(spriteBatch, false);
 
-            if (!gameOver)
+            if (gameState == GameState.Game)
             {
                 this.drawGamePlay(gameTime);
             }
-            else
+            else if(gameState == GameState.GameOver)
             {
                 this.drawGameOver(gameTime);
+            }
+            else if(gameState == GameState.Login)
+            {
+                spriteBatch.DrawString(scoreFont, "Enter Your Username Here", new Vector2(20, 50), Color.DodgerBlue);
+                keyBoard.Draw(spriteBatch, false);
             }
 
             spriteBatch.End();
