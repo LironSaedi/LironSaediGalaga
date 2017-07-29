@@ -33,6 +33,8 @@ namespace LironSaediGalaga
         Sprite keyBoard;
         Sprite scoreBoard;
         KeyboardState ks;
+        MouseState ms;
+        MouseState ls;
         Texture2D[] enemyImages;
         SpriteFont scoreFont;
         GameState gameState;
@@ -47,11 +49,12 @@ namespace LironSaediGalaga
         int rows = 0; //5 max
         int cols = 0; //15 max
         bool debugMode = false;
-        bool gameOver = false;
+        //bool gameOver = false;
 
         TimeSpan delay = TimeSpan.Zero;
         XDocument document;
 
+        string username = "";
 
         public Game1()
         {
@@ -87,8 +90,6 @@ namespace LironSaediGalaga
             enemyImages[0] = Content.Load<Texture2D>("Jaewon");
             enemyImages[1] = Content.Load<Texture2D>("Alex");
 
-
-
             enemies = new List<Enemies>();
 
             Spawn();
@@ -107,6 +108,8 @@ namespace LironSaediGalaga
             Texture2D laser = Content.Load<Texture2D>("Laser");
 
             scoreFont = Content.Load<SpriteFont>("Scorefont");
+            SpriteFont keyFont = Content.Load<SpriteFont>("KeyboardFont");
+            Texture2D keyTex = Content.Load<Texture2D>("key");
 
             SoundEffect laserSound = Content.Load<SoundEffect>("laser1");
             arwing = new ArWing(arwingTexture, laser, new Vector2(100, 825), Color.White, new Vector2(5), laserSound);
@@ -128,18 +131,25 @@ namespace LironSaediGalaga
 
             keyPadKeys = new List<KeyPadKey>();
 
-            //LOOK ABOVE
             //create a y position that starts at the top of the keypad
+            int xPos = 200;
             int yPos = 200;
 
-            for ( int i = 0; i < 26; i++)
+            int xOff;
+            int yOff;
+
+            for (int i = 0; i < 26; i++)
             {
-               
+                xOff = i % 7 * 76;
+                yOff = i / 7 * 76;
+
+                string value = char.ConvertFromUtf32(i + 65);
+                keyPadKeys.Add(new KeyPadKey(keyTex, new Vector2(xPos + xOff, yPos + yOff), Color.Black, value, keyFont));
                 //add a new KeyPadKey to the list keyPadKeys
                 //the new KeyPadKey's new Rectangle's x position will be at the left most x + i % 7 * 77 
                 //the y position will be added by 77 every 7 rectangles
-                //the letter for each KeyPadKey will be a new char with a value of 65 + i                
-            }                        
+                //the letter for each KeyPadKey will be a new char with a value of 65 + i\
+            }
 
             gameState = GameState.Login;
         }
@@ -229,7 +239,7 @@ namespace LironSaediGalaga
 
                 for (int f = 0; f < 6; f++)
                 {
-                    if(f < highscores.Count)
+                    if (f < highscores.Count)
                     {
                         XElement score = new XElement("Score");
                         score.Value = highscores[f].ToString();
@@ -347,6 +357,24 @@ namespace LironSaediGalaga
             }
         }
 
+        private void updateLogin(GameTime gameTime)
+        {
+            if (ms.LeftButton == ButtonState.Pressed && ls.LeftButton == ButtonState.Released)
+            {
+                for (int i = 0; i < keyPadKeys.Count; i++)
+                {
+                    if (keyPadKeys[i].Hitbox.Contains(ms.X, ms.Y))
+                    {
+                        username += keyPadKeys[i].ToString();
+                    }
+                }
+            }
+            else if (ks.IsKeyDown(Keys.Enter))
+            {
+                gameState = GameState.Game;
+            }
+        }
+
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -355,6 +383,7 @@ namespace LironSaediGalaga
         protected override void Update(GameTime gameTime)
         {
             ks = Keyboard.GetState();
+            ms = Mouse.GetState();
 
             if (ks.IsKeyDown(Keys.B))
             {
@@ -366,16 +395,28 @@ namespace LironSaediGalaga
                 lives -= 1;
             }
 
-            if (gameState == GameState.Game)
+            switch (this.gameState)
             {
-                this.updateGamePlaying(gameTime);
-            }
-            else if(gameState == GameState.GameOver)
-            {
-                this.updateGameOver(gameTime);
+                case GameState.Game:
+                    this.updateGamePlaying(gameTime);
+                    break;
+
+                case GameState.GameOver:
+                    this.updateGameOver(gameTime);
+                    break;
+
+                case GameState.Login:
+                    this.updateLogin(gameTime);
+                    break;
+
+                default:
+                    this.updateGameOver(gameTime);
+                    break;
             }
 
             base.Update(gameTime);
+
+            ls = Mouse.GetState();
         }
 
         private void drawGameOver(GameTime gameTime)
@@ -384,7 +425,7 @@ namespace LironSaediGalaga
             spriteBatch.DrawString(scoreFont, "Your Score: " + score, new Vector2(500, 100), Color.Yellow);
             scoreBoard.Draw(spriteBatch, false);
             spriteBatch.DrawString(scoreFont, "To Restart Press R To Quit Press Q", new Vector2(1000, 550), Color.Yellow);
-           
+
 
             // sort high scores
             // for loop though all items (twice)
@@ -414,7 +455,6 @@ namespace LironSaediGalaga
             }
         }
 
-
         private void drawGamePlay(GameTime gameTime)
         {
             //for loop to draw them all
@@ -434,6 +474,16 @@ namespace LironSaediGalaga
             }
 
         }
+
+        private void drawLogin(GameTime gameTime)
+        {
+            spriteBatch.DrawString(scoreFont, "Enter Your Username Here: " + this.username, new Vector2(20, 50), Color.DodgerBlue);
+            for (int i = 0; i < keyPadKeys.Count; i++)
+            {
+                keyPadKeys[i].Draw(spriteBatch, debugMode);
+            }
+        }
+
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
@@ -447,18 +497,23 @@ namespace LironSaediGalaga
             spriteBatch.Begin();
             space.Draw(spriteBatch, false);
 
-            if (gameState == GameState.Game)
+            switch (this.gameState)
             {
-                this.drawGamePlay(gameTime);
-            }
-            else if(gameState == GameState.GameOver)
-            {
-                this.drawGameOver(gameTime);
-            }
-            else if(gameState == GameState.Login)
-            {
-                spriteBatch.DrawString(scoreFont, "Enter Your Username Here", new Vector2(20, 50), Color.DodgerBlue);
-                keyBoard.Draw(spriteBatch, false);
+                case GameState.Game:
+                    this.drawGamePlay(gameTime);
+                    break;
+
+                case GameState.GameOver:
+                    this.drawGameOver(gameTime);
+                    break;
+
+                case GameState.Login:
+                    this.drawLogin(gameTime);
+                    break;
+
+                default:
+                    this.updateGameOver(gameTime);
+                    break;
             }
 
             spriteBatch.End();
