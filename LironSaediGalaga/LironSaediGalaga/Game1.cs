@@ -42,7 +42,13 @@ namespace LironSaediGalaga
 
         int score = 0;
         int lives = 1;
-        List<int> highscores = new List<int>();
+
+        //Make a User class: name, score
+        List<User> highscores = new List<User>();
+
+
+
+
         bool saveScores = true;
         Random rnd = new Random();
         int level = 1;
@@ -124,9 +130,13 @@ namespace LironSaediGalaga
             // TODO: use this.Content to load your game content here
 
             document = XDocument.Load("HighScores.xml");
+            //load attribute here
             foreach (XElement score in document.Elements("Scores").Elements("Score"))
             {
-                highscores.Add(int.Parse(score.Value));
+                string name = score.Attribute("name").Value;
+                int number = int.Parse(score.Value);
+
+                highscores.Add(new User(name, number));
             }
 
             keyPadKeys = new List<KeyPadKey>();
@@ -213,7 +223,7 @@ namespace LironSaediGalaga
                 saveScores = false;
 
                 //save score into the list of highscores
-                highscores.Add(score);
+                highscores.Add(new User(username, score));
                 //highscores.Insert(0, score);//hint not zero unless its the high score
 
                 //loop thorugh highscores
@@ -224,9 +234,9 @@ namespace LironSaediGalaga
                 {
                     for (int j = 0; j < highscores.Count; j++)
                     {
-                        if (highscores[i] > highscores[j])
+                        if (highscores[i].score > highscores[j].score)
                         {
-                            int temp = highscores[i];
+                            User temp = highscores[i];
                             highscores[i] = highscores[j];
                             highscores[j] = temp;
                         }
@@ -237,24 +247,14 @@ namespace LironSaediGalaga
 
                 document.Element("Scores").RemoveAll();
 
-                for (int f = 0; f < 6; f++)
+                for (int f = 0; f < highscores.Count; f++)
                 {
-                    if (f < highscores.Count)
-                    {
-                        XElement score = new XElement("Score");
-                        score.Value = highscores[f].ToString();
-                        document.Element("Scores").Add(score);
-                        document.Save("HighScores.xml");
-                    }
-                    else
-                    {
-                        XElement score = new XElement("Score");
-                        score.Value = "0";
-                        document.Element("Scores").Add(score);
-                        document.Save("HighScores.xml");
-                    }
-                }
+                    XElement score = new XElement("Score", new XAttribute("name", highscores[f].name));
+                    score.Value = highscores[f].score.ToString();
 
+                    document.Element("Scores").Add(score);
+                }
+                document.Save("HighScores.xml");
 
             }
 
@@ -422,7 +422,7 @@ namespace LironSaediGalaga
         private void drawGameOver(GameTime gameTime)
         {
             GameOverD.Draw(spriteBatch, false);
-            spriteBatch.DrawString(scoreFont, "Your Score: " + score, new Vector2(500, 100), Color.Yellow);
+            spriteBatch.DrawString(scoreFont, $"Your Score: {score}", new Vector2(500, 100), Color.Yellow);
             scoreBoard.Draw(spriteBatch, false);
             spriteBatch.DrawString(scoreFont, "To Restart Press R To Quit Press Q", new Vector2(1000, 550), Color.Yellow);
 
@@ -443,12 +443,21 @@ namespace LironSaediGalaga
 
             int dy = 0;
 
-
-            for (int i = 0; i < highscores.Count && i < 6; i++)
+            //for (int j = 0; j < username.Length && j  < 6; j++)
+            // { 
+            //     spriteBatch.DrawString(scoreFont, username[j].ToString(), new Vector2(1500, 140 + dy), Color.White);
+            // }
+            for (int i = 0; i < 6; i++)
             {
-
-                spriteBatch.DrawString(scoreFont, highscores[i].ToString(), new Vector2(1440, 140 + dy), Color.White);
-
+                if (i < highscores.Count)
+                {
+                    spriteBatch.DrawString(scoreFont, highscores[i].score.ToString(), new Vector2(1440, 140 + dy), Color.White);
+                    spriteBatch.DrawString(scoreFont, highscores[i].name.ToString(), new Vector2(1600, 140 + dy), Color.White);
+                }
+                else
+                {
+                    spriteBatch.DrawString(scoreFont, "0", new Vector2(1440, 140 + dy), Color.White);
+                }
 
                 dy += 30;
 
@@ -478,6 +487,7 @@ namespace LironSaediGalaga
         private void drawLogin(GameTime gameTime)
         {
             spriteBatch.DrawString(scoreFont, "Enter Your Username Here: " + this.username, new Vector2(20, 50), Color.DodgerBlue);
+            spriteBatch.DrawString(scoreFont, "When You Are finished Press The ENTER KEY", new Vector2(880, 400), Color.DodgerBlue);
             for (int i = 0; i < keyPadKeys.Count; i++)
             {
                 keyPadKeys[i].Draw(spriteBatch, debugMode);
