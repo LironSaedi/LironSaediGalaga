@@ -25,6 +25,7 @@ namespace LironSaediGalaga
         Texture2D GameOver;
         Texture2D ScoreBoard;
         Texture2D KeyBoard;
+        Texture2D Delete;
         public static Texture2D hitboxSprite;
         ArWing arwing;
         List<Enemies> enemies;
@@ -32,6 +33,7 @@ namespace LironSaediGalaga
         Sprite GameOverD;
         Sprite keyBoard;
         Sprite scoreBoard;
+        Sprite delete;
         KeyboardState ks;
         MouseState ms;
         MouseState ls;
@@ -45,9 +47,6 @@ namespace LironSaediGalaga
 
         //Make a User class: name, score
         List<User> highscores = new List<User>();
-
-
-
 
         bool saveScores = true;
         Random rnd = new Random();
@@ -129,7 +128,7 @@ namespace LironSaediGalaga
             keyBoard = new Sprite(KeyBoard, new Vector2(700, 200), Color.White);
             // TODO: use this.Content to load your game content here
 
-            document = XDocument.Load("HighScores.xml");
+             document = XDocument.Load("HighScores.xml");
             //load attribute here
             foreach (XElement score in document.Elements("Scores").Elements("Score"))
             {
@@ -160,6 +159,9 @@ namespace LironSaediGalaga
                 //the y position will be added by 77 every 7 rectangles
                 //the letter for each KeyPadKey will be a new char with a value of 65 + i\
             }
+
+            //add a new keypadkey to the list
+            keyPadKeys.Add(new KeyPadKey(keyTex, new Vector2(xPos + 380, yPos + 282), Color.Black, "DEL", keyFont));
 
             gameState = GameState.Login;
         }
@@ -365,7 +367,16 @@ namespace LironSaediGalaga
                 {
                     if (keyPadKeys[i].Hitbox.Contains(ms.X, ms.Y))
                     {
-                        username += keyPadKeys[i].ToString();
+                        if (i != 26)
+                        {
+                            username += keyPadKeys[i].ToString();
+                        }
+                        else
+                        {
+                            if( username.Length != 0)
+                                username = username.Substring(0, username.Length - 1);
+                        }
+
                     }
                 }
             }
@@ -487,7 +498,7 @@ namespace LironSaediGalaga
         private void drawLogin(GameTime gameTime)
         {
             spriteBatch.DrawString(scoreFont, "Enter Your Username Here: " + this.username, new Vector2(20, 50), Color.DodgerBlue);
-            spriteBatch.DrawString(scoreFont, "When You Are finished Press The ENTER KEY", new Vector2(880, 400), Color.DodgerBlue);
+            spriteBatch.DrawString(scoreFont, "When You Are finished Press The ENTER KEY", new Vector2(880, 400), Color.DodgerBlue);                                                                                                       
             for (int i = 0; i < keyPadKeys.Count; i++)
             {
                 keyPadKeys[i].Draw(spriteBatch, debugMode);

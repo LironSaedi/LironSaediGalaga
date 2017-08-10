@@ -91,6 +91,7 @@
     <Content Include="HighScores.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="xImage.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LironSaediGalagaContent\LironSaediGalagaContent.contentproj">
