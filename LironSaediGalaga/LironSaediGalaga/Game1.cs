@@ -25,7 +25,6 @@ namespace LironSaediGalaga
         Texture2D GameOver;
         Texture2D ScoreBoard;
         Texture2D KeyBoard;
-        Texture2D Delete;
         public static Texture2D hitboxSprite;
         ArWing arwing;
         List<Enemies> enemies;
@@ -33,7 +32,6 @@ namespace LironSaediGalaga
         Sprite GameOverD;
         Sprite keyBoard;
         Sprite scoreBoard;
-        Sprite delete;
         KeyboardState ks;
         MouseState ms;
         MouseState ls;
@@ -133,6 +131,7 @@ namespace LironSaediGalaga
             foreach (XElement score in document.Elements("Scores").Elements("Score"))
             {
                 string name = score.Attribute("name").Value;
+                
                 int number = int.Parse(score.Value);
 
                 highscores.Add(new User(name, number));
