@@ -13,6 +13,7 @@ namespace LironSaediGalaga
     {
         Vector2 speed;
         Texture2D bulletTexture;
+        Texture2D bombTexture;
         List<Bullet> bullets;
         SoundEffect laserSound;
         float bulletSpeed = 5;
@@ -28,17 +29,18 @@ namespace LironSaediGalaga
             }
         }
 
-        public ArWing(Texture2D texture, Texture2D bulletTexture, Vector2 position, Color tint, Vector2 speed, SoundEffect laserSound)
+        public ArWing(Texture2D texture, Texture2D bombTexture, Texture2D bulletTexture, Vector2 position, Color tint, Vector2 speed, SoundEffect laserSound)
             : base(texture, position, tint)
         {
             this.speed = speed;
+            this.bombTexture = bombTexture;
             this.bulletTexture = bulletTexture;
             this.laserSound = laserSound;
             bullets = new List<Bullet>();
             //Shoot();
         }
 
-        public void Update(KeyboardState ks, Viewport viewport)
+        public void Update(KeyboardState ks, Viewport viewport, Random random)
         {
             if (ks.IsKeyDown(Keys.Right))
             {
@@ -60,7 +62,7 @@ namespace LironSaediGalaga
             {
 
                 laserSound.Play();
-                Shoot();
+                Shoot(random);
 
             }
             foreach (Bullet bullet in bullets)
@@ -81,11 +83,18 @@ namespace LironSaediGalaga
             base.Draw(batch, debug);
         }
 
-        public void Shoot()
+        public void Shoot(Random random)
         {
-            bullets.Add(new Bullet(bulletTexture, new Vector2(position.X + (texture.Width - bulletTexture.Width) / 2, position.Y), Color.White, -bulletSpeed));
+            int rnd = random.Next(0, 10);
+
+            if (rnd == 0)
+            {
+                bullets.Add(new Bullet(bombTexture, new Vector2(position.X + (texture.Width - bombTexture.Width) / 2, position.Y), Color.White, -bulletSpeed, 4f));
+            }
+            else
+            {
+                bullets.Add(new Bullet(bulletTexture, new Vector2(position.X + (texture.Width - bulletTexture.Width) / 2, position.Y), Color.White, -bulletSpeed));
+            }
         }
-
-
     }
 }

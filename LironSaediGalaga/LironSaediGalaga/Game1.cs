@@ -25,6 +25,8 @@ namespace LironSaediGalaga
         Texture2D GameOver;
         Texture2D ScoreBoard;
         Texture2D KeyBoard;
+        Texture2D laser;
+        Texture2D bombTexture;
         public static Texture2D hitboxSprite;
         ArWing arwing;
         List<Enemies> enemies;
@@ -108,14 +110,14 @@ namespace LironSaediGalaga
             //enemies.Add(new Enemies(enemiesImage, new Vector2(720, 20), Color.White, 5, 5));
 
             arwingTexture = Content.Load<Texture2D>("arwing");
-            Texture2D laser = Content.Load<Texture2D>("Laser");
-
+            laser = Content.Load<Texture2D>("Laser");
+            bombTexture = Content.Load<Texture2D>("plasma1");
             scoreFont = Content.Load<SpriteFont>("Scorefont");
             SpriteFont keyFont = Content.Load<SpriteFont>("KeyboardFont");
             Texture2D keyTex = Content.Load<Texture2D>("key");
 
             SoundEffect laserSound = Content.Load<SoundEffect>("laser1");
-            arwing = new ArWing(arwingTexture, laser, new Vector2(100, 825), Color.White, new Vector2(5), laserSound);
+            arwing = new ArWing(arwingTexture, bombTexture, laser, new Vector2(100, 825), Color.White, new Vector2(5), laserSound);
             background = Content.Load<Texture2D>("SpaceBackground");
             GameOver = Content.Load<Texture2D>("GameOver");
             ScoreBoard = Content.Load<Texture2D>("leaderboard");
@@ -269,9 +271,8 @@ namespace LironSaediGalaga
                 cols = 0;
                 score = 0;
                 Spawn();
-                Texture2D laser = Content.Load<Texture2D>("Laser");
                 SoundEffect laserSound = Content.Load<SoundEffect>("laser1");
-                arwing = new ArWing(arwingTexture, laser, new Vector2(100, 825), Color.White, new Vector2(5), laserSound);
+                arwing = new ArWing(arwingTexture, bombTexture, laser, new Vector2(100, 825), Color.White, new Vector2(5), laserSound);
 
                 gameState = GameState.Game;
             }
@@ -287,7 +288,7 @@ namespace LironSaediGalaga
             // TODO: Add your update logic here
             saveScores = true;
 
-            arwing.Update(ks, GraphicsDevice.Viewport);
+            arwing.Update(ks, GraphicsDevice.Viewport, rnd);
 
             for (int i = 0; i < arwing.Bullets.Count; i++)
             {
@@ -306,7 +307,7 @@ namespace LironSaediGalaga
 
                         if (arwing.Bullets[i].Hitbox.Intersects(enemies[j].Hitbox))
                         {
-                            score += (int)((float)enemies[j].Score / enemies[j].Scale);
+                            score += (int)(((float)enemies[j].Score / enemies[j].Scale) * arwing.Bullets[i].multiplier);
                             //stop drawing enemy
                             enemies.RemoveAt(j);
                             j--;

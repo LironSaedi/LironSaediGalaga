@@ -10,12 +10,14 @@ namespace LironSaediGalaga
     class Bullet : Sprite
 
     {
-        float speedY;
+        protected float speedY;
+        public float multiplier { get; protected set; }
 
-        public Bullet(Texture2D texture, Vector2 position, Color tint, float speedY) 
+        public Bullet(Texture2D texture, Vector2 position, Color tint, float speedY, float multiplier = 1f) 
             : base(texture, position, tint)
         {
             this.speedY = speedY;
+            this.multiplier = multiplier;
         }
 
         public new void Update()
